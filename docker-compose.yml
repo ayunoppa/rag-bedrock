@@ -1,0 +1,28 @@
+services:
+  api:
+    build: ./app
+    container_name: rag_api
+    ports:
+      - "8000:8000"
+    depends_on:
+      - qdrant
+    volumes:
+      - ./app:/app
+      - ~/.aws:/root/.aws:ro
+    # Bedrock へはホストの AWS 認証情報を共有するのが簡単です
+    environment:
+      - AWS_REGION=${AWS_REGION}
+      - AWS_PROFILE=${AWS_PROFILE}
+      - BEDROCK_LLM_MODEL_ID=${BEDROCK_LLM_MODEL_ID}
+      - BEDROCK_EMBED_MODEL_ID=${BEDROCK_EMBED_MODEL_ID}
+    working_dir: /app
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - ./qdrant_data:/qdrant/storage
+
